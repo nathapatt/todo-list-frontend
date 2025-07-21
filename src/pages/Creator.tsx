@@ -1,5 +1,5 @@
 import { Card, Row, Col } from "antd"
-import MindImage from "@/assets/creators/Mind.jpg"
+import MindImage from "@/assets/creators/mind.jpg"
 // import TestNotification from "@/components/TestNotification"
 
 const creators = [
