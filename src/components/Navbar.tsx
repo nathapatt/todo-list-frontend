@@ -1,12 +1,27 @@
-import { Layout, Typography, Menu, Avatar, Space } from "antd";
-import { UserOutlined } from "@ant-design/icons";
-import { Link } from "react-router-dom"; // 👈 import Link
+import { Layout, Typography, Menu, Avatar, Space, Dropdown } from "antd";
+import { UserOutlined, LogoutOutlined } from "@ant-design/icons";
+import { Link, useNavigate } from "react-router-dom"; // ใช้ navigate ไป login
 import Logo from "@/assets/logo.png";
 
 const { Header } = Layout;
 const { Title } = Typography;
 
 const Navbar = () => {
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    localStorage.removeItem("access_token");
+    navigate("/login");
+  };
+
+  const userMenu = (
+    <Menu>
+      <Menu.Item key="logout" icon={<LogoutOutlined />} onClick={handleLogout}>
+        Logout
+      </Menu.Item>
+    </Menu>
+  );
+
   return (
     <Header
       style={{
@@ -29,7 +44,6 @@ const Navbar = () => {
         <Menu
           mode="horizontal"
           selectable={false}
-          //   overflowedIndicator={null}
           style={{
             flex: "none",
             borderBottom: "none",
@@ -46,7 +60,9 @@ const Navbar = () => {
           </Menu.Item>
         </Menu>
 
-        <Avatar icon={<UserOutlined />} />
+        <Dropdown overlay={userMenu} trigger={['click']} placement="bottomRight">
+          <Avatar icon={<UserOutlined />} style={{ cursor: "pointer" }} />
+        </Dropdown>
       </div>
     </Header>
   );

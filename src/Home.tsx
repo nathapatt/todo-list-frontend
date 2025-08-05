@@ -20,13 +20,13 @@ import {
 import { format } from "date-fns";
 import type { InputRef } from "antd";
 import type { Dayjs } from "dayjs";
-// import dayjs from "dayjs";
-// import axios from "axios";
+import axios from "axios";
 
 const { Content, Footer } = Layout;
 const { Title, Text } = Typography;
 
 type Todo = {
+  id: string;
   title: string;
   note: string;
   timestamp: string;
@@ -42,6 +42,7 @@ function App() {
   const [editingTitle, setEditingTitle] = useState("");
   const [editingNote, setEditingNote] = useState("");
   const [titleError, setTitleError] = useState(false);
+  const [token, setToken] = useState<string | null>(null);
 
   const [isFilterModalVisible, setIsFilterModalVisible] = useState(false);
   const [selectedDate, setSelectedDate] = useState<Dayjs | null>(null);
@@ -57,7 +58,38 @@ function App() {
     { name: "Blue", value: "#b3e5fc" },
   ];
 
-  const handleSubmit = () => {
+  useEffect(() => {
+    const savedToken = localStorage.getItem('access_token');
+    if (savedToken) {
+      setToken(savedToken);
+    } else {
+      // redirect ไปหน้า Login ถ้ายังไม่มี Token
+      window.location.href = '/login';
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!token) return;
+    console.log("Saved token:", token);
+
+
+    const fetchTodos = async () => {
+      try {
+        const response = await axios.get("http://localhost:3000/todos", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        setTodos(response.data);
+      } catch (error) {
+        console.error("Failed to fetch todos", error);
+      }
+    };
+
+    fetchTodos();
+  }, [token]);
+
+  const handleSubmit = async () => {
     if (!title.trim()) {
       setTitleError(true);
       notification.error({
@@ -72,22 +104,43 @@ function App() {
       return;
     }
 
-    const newTodo: Todo = {
-      title,
-      note,
-      timestamp: format(new Date(), "yyyy-MM-dd HH:mm:ss"),
-      color: bgColor,
-    };
-
-    setTodos([newTodo, ...todos]);
-    setTitle("");
-    setNote("");
-    setBgColor("#fff9c4");
-    setTitleError(false);
+    try {
+      const response = await axios.post(
+        "http://localhost:3000/todos",
+        {
+          title,
+          note,
+          timestamp: new Date().toISOString(),
+          color: bgColor,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      setTodos([response.data, ...todos]);
+      setTitle("");
+      setNote("");
+      setBgColor("#fff9c4");
+      setTitleError(false);
+    } catch (error) {
+      console.error("Failed to create todo", error);
+    }
   };
 
-  const handleDelete = (index: number) => {
-    setTodos(todos.filter((_, i) => i !== index));
+  const handleDelete = async (index: number) => {
+    const todoToDelete = todos[index];
+    try {
+      await axios.delete(`http://localhost:3000/todos/${todoToDelete.id}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      setTodos(todos.filter((_, i) => i !== index));
+    } catch (error) {
+      console.error("Failed to delete todo", error);
+    }
   };
 
   const handleEdit = (index: number) => {
@@ -96,18 +149,32 @@ function App() {
     setEditingNote(todos[index].note);
   };
 
-  const handleSave = (index: number) => {
-    const updatedTodos = [...todos];
-    updatedTodos[index] = {
-      ...updatedTodos[index],
-      title: editingTitle,
-      note: editingNote,
-      timestamp: format(new Date(), "yyyy-MM-dd HH:mm:ss"),
-    };
-    setTodos(updatedTodos);
-    setEditingIndex(null);
-    setEditingTitle("");
-    setEditingNote("");
+  const handleSave = async (index: number) => {
+    const todoToUpdate = todos[index];
+    try {
+      const response = await axios.put(
+        `http://localhost:3000/todos/${todoToUpdate.id}`,
+        {
+          title: editingTitle,
+          note: editingNote,
+          timestamp: new Date().toISOString(),
+          color: todoToUpdate.color,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      const updatedTodos = [...todos];
+      updatedTodos[index] = response.data;
+      setTodos(updatedTodos);
+      setEditingIndex(null);
+      setEditingTitle("");
+      setEditingNote("");
+    } catch (error) {
+      console.error("Failed to update todo", error);
+    }
   };
 
   const handleCancel = () => {
@@ -116,15 +183,6 @@ function App() {
     setEditingNote("");
   };
 
-  useEffect(() => {
-    notification.info({
-      message: "Test Notification",
-      description: "If you see this, notification works.",
-      duration: 7,
-    });
-  }, []);
-
-  // Filter logic
   let filteredAndSortedTodos = [...todos];
 
   if (selectedDate) {
@@ -198,7 +256,7 @@ function App() {
             ))}
           </div>
 
-          <Button type="primary" onClick={handleSubmit}>
+          <Button type="primary" onClick={handleSubmit} disabled={!token}>
             Add Task
           </Button>
 
@@ -224,8 +282,7 @@ function App() {
               <div
                 style={{
                   display: "grid",
-                  gridTemplateColumns:
-                    "repeat(auto-fill, minmax(250px, 1fr))",
+                  gridTemplateColumns: "repeat(auto-fill, minmax(250px, 1fr))",
                   gap: "16px",
                   marginTop: 20,
                 }}
@@ -237,9 +294,7 @@ function App() {
                       editingIndex === index ? (
                         <Input
                           value={editingTitle}
-                          onChange={(e) =>
-                            setEditingTitle(e.target.value)
-                          }
+                          onChange={(e) => setEditingTitle(e.target.value)}
                         />
                       ) : (
                         todo.title
@@ -292,7 +347,7 @@ function App() {
                         <Text style={{ fontSize: 16 }}>{todo.note}</Text>
                         <br />
                         <Text type="secondary" style={{ fontSize: 12 }}>
-                          🕒 {todo.timestamp}
+                          🕒 {format(new Date(todo.timestamp), "yyyy-MM-dd HH:mm")}
                         </Text>
                       </>
                     )}
@@ -308,7 +363,6 @@ function App() {
         Created by Nokia of Thailand
       </Footer>
 
-      {/* Filter Modal */}
       <Modal
         title="Filter Tasks"
         open={isFilterModalVisible}
