@@ -75,7 +75,7 @@ function App() {
 
     const fetchTodos = async () => {
       try {
-        const response = await axios.get("http://localhost:3000/todos", {
+        const response = await axios.get("/api/todos", {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -83,6 +83,7 @@ function App() {
         setTodos(response.data);
       } catch (error) {
         console.error("Failed to fetch todos", error);
+        window.location.href = '/login';
       }
     };
 
@@ -106,7 +107,7 @@ function App() {
 
     try {
       const response = await axios.post(
-        "http://localhost:3000/todos",
+        "/api/todos",
         {
           title,
           note,
@@ -132,7 +133,7 @@ function App() {
   const handleDelete = async (index: number) => {
     const todoToDelete = todos[index];
     try {
-      await axios.delete(`http://localhost:3000/todos/${todoToDelete.id}`, {
+      await axios.delete(`/api/todos/${todoToDelete.id}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -153,7 +154,7 @@ function App() {
     const todoToUpdate = todos[index];
     try {
       const response = await axios.put(
-        `http://localhost:3000/todos/${todoToUpdate.id}`,
+        `/api/todos/${todoToUpdate.id}`,
         {
           title: editingTitle,
           note: editingNote,

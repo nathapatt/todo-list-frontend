@@ -29,6 +29,14 @@ function RegisterPage() {
       setNameError(true);
       notification.error({ message: 'กรุณากรอกชื่อ' });
       hasError = true;
+    } else if (name.trim().length < 2) {
+      setNameError(true);
+      notification.error({ message: 'ชื่อต้องมีความยาวอย่างน้อย 2 ตัวอักษร' });
+      hasError = true;
+    } else if (name.trim().length > 50) {
+      setNameError(true);
+      notification.error({ message: 'ชื่อต้องมีความยาวไม่เกิน 50 ตัวอักษร' });
+      hasError = true;
     } else {
       setNameError(false);
     }

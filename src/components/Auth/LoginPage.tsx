@@ -58,6 +58,9 @@ function LoginPage() {
       }
 
       localStorage.setItem('access_token', token);
+      if (response.name) {
+        localStorage.setItem('user_name', response.name);
+      }
       notification.success({ message: 'Login Success!' });
       navigate('/');
     } catch {

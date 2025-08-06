@@ -1,6 +1,7 @@
-import { Layout, Typography, Menu, Avatar, Space, Dropdown } from "antd";
+import { Layout, Typography, Menu, Avatar, Space, Dropdown, Tooltip } from "antd";
 import { UserOutlined, LogoutOutlined } from "@ant-design/icons";
 import { Link, useNavigate } from "react-router-dom"; // ใช้ navigate ไป login
+import { useState, useEffect } from "react";
 import Logo from "@/assets/logo.png";
 
 const { Header } = Layout;
@@ -8,14 +9,49 @@ const { Title } = Typography;
 
 const Navbar = () => {
   const navigate = useNavigate();
+  const [userName, setUserName] = useState<string | null>(null);
+
+  useEffect(() => {
+    const name = localStorage.getItem("user_name");
+    setUserName(name);
+  }, []);
+
+  const truncateName = (name: string, maxLength: number = 15) => {
+    if (name.length <= maxLength) return name;
+    return name.substring(0, maxLength) + "...";
+  };
 
   const handleLogout = () => {
     localStorage.removeItem("access_token");
+    localStorage.removeItem("user_name");
+    setUserName(null);
     navigate("/login");
   };
 
   const userMenu = (
     <Menu>
+      {userName && (
+        <Menu.Item key="username" style={{ cursor: 'default' }}>
+          <div style={{ 
+            display: 'flex', 
+            flexDirection: 'column', 
+            alignItems: 'center', 
+            padding: '8px 0' 
+          }}>
+            <Avatar 
+              icon={<UserOutlined />} 
+              style={{ marginBottom: 8 }} 
+              size={48}
+            />
+            <Tooltip title={userName.length > 15 ? userName : undefined}>
+              <span style={{ fontWeight: 500 }}>
+                {truncateName(userName)}
+              </span>
+            </Tooltip>
+          </div>
+        </Menu.Item>
+      )}
+      <Menu.Divider />
       <Menu.Item key="logout" icon={<LogoutOutlined />} onClick={handleLogout}>
         Logout
       </Menu.Item>
