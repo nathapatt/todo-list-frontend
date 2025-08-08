@@ -77,8 +77,19 @@ function RegisterPage() {
       await registerApi(email, password, name);
       notification.success({ message: 'สมัครสมาชิกสำเร็จ!' });
       navigate('/login');
-    } catch {
-      notification.error({ message: 'สมัครสมาชิกไม่สำเร็จ' });
+    } catch (error: any) {
+      const errorMessage = error.response?.data?.message || error.message;
+      const statusCode = error.response?.status;
+      
+      if ((errorMessage?.includes('email') && (errorMessage?.includes('exists') || errorMessage?.includes('duplicate') || errorMessage?.includes('already'))) || statusCode === 500) {
+        setEmailError(true);
+        notification.error({ 
+          message: 'อีเมลนี้ถูกใช้แล้ว',
+          description: 'กรุณาใช้อีเมลอื่น หรือเข้าสู่ระบบหากคุณมีบัญชีแล้ว'
+        });
+      } else {
+        notification.error({ message: 'สมัครสมาชิกไม่สำเร็จ', description: errorMessage });
+      }
     }
   };
 
