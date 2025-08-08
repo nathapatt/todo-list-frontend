@@ -1,5 +1,7 @@
 import { Card, Row, Col } from "antd"
 import MindImage from "@/assets/creators/mind.jpg"
+import AuImage from "@/assets/creators/au.jpg"
+import KawImage from "@/assets/creators/kaw.jpg"
 // import TestNotification from "@/components/TestNotification"
 
 const creators = [
@@ -9,16 +11,18 @@ const creators = [
     image: MindImage,
     studentId: "650610758",
   },
-  // {
-  //   id: 2,
-  //   name: "Jane Smith",
-  //   image: "https://via.placeholder.com/150",
-  // },
-  // {
-  //   id: 3,
-  //   name: "Alice Brown",
-  //   image: "https://via.placeholder.com/150",
-  // },
+  {
+    id: 2,
+    name: "Kankorn Chirachaihirun",
+    image: AuImage,
+    studentId: "650610746",
+  },
+  {
+    id: 3,
+    name: "Jiraphat Ponrat",
+    image: KawImage,
+    studentId: "650610752",
+  },
 ]
 
 const CreatorPage = () => {
@@ -29,7 +33,7 @@ const CreatorPage = () => {
           <Col key={creator.id} xs={24} sm={12} md={8} lg={6}>
             <Card
               hoverable
-              cover={<img alt={creator.name} src={creator.image} />}
+              cover={<img alt={creator.name} src={creator.image} style={{ height: '500px', width: '100%', objectFit: 'cover' }} />}
             >
               <Card.Meta title={creator.name} style={{ textAlign: "center", marginBottom: 8 }}/>
               <Card.Meta title={creator.studentId}  style={{ textAlign: "center" }} />
