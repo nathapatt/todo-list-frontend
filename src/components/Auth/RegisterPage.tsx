@@ -80,9 +80,8 @@ function RegisterPage() {
       navigate('/login');
     } catch (error: any) {
       const errorMessage = error.response?.data?.message || error.message;
-      const statusCode = error.response?.status;
       
-      if ((errorMessage?.includes('email') && (errorMessage?.includes('exists') || errorMessage?.includes('duplicate') || errorMessage?.includes('already'))) || statusCode === 500) {
+      if (errorMessage?.includes('email') && (errorMessage?.includes('exists') || errorMessage?.includes('duplicate') || errorMessage?.includes('already'))) {
         setEmailError(true);
         notification.error({ 
           message: 'อีเมลนี้ถูกใช้แล้ว',
