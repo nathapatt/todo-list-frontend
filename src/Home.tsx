@@ -59,19 +59,18 @@ function App() {
   ];
 
   useEffect(() => {
-    const savedToken = localStorage.getItem('access_token');
+    const savedToken = localStorage.getItem("access_token");
     if (savedToken) {
       setToken(savedToken);
     } else {
       // redirect ไปหน้า Login ถ้ายังไม่มี Token
-      window.location.href = '/login';
+      window.location.href = "/login";
     }
   }, []);
 
   useEffect(() => {
     if (!token) return;
     console.log("Saved token:", token);
-
 
     const fetchTodos = async () => {
       try {
@@ -83,7 +82,7 @@ function App() {
         setTodos(response.data);
       } catch (error) {
         console.error("Failed to fetch todos", error);
-        window.location.href = '/login';
+        window.location.href = "/login";
       }
     };
 
@@ -257,7 +256,16 @@ function App() {
             ))}
           </div>
 
-          <Button type="primary" onClick={handleSubmit} disabled={!token}>
+          <Button
+            type="primary"
+            onClick={handleSubmit}
+            disabled={!token}
+            style={{
+              backgroundColor: '#C8A2C8', // purple
+              borderColor: '#C8A2C8',
+              color: "white", // text color
+            }}
+          >
             Add Task
           </Button>
 
@@ -348,7 +356,8 @@ function App() {
                         <Text style={{ fontSize: 16 }}>{todo.note}</Text>
                         <br />
                         <Text type="secondary" style={{ fontSize: 12 }}>
-                          🕒 {format(new Date(todo.timestamp), "yyyy-MM-dd HH:mm")}
+                          🕒{" "}
+                          {format(new Date(todo.timestamp), "yyyy-MM-dd HH:mm")}
                         </Text>
                       </>
                     )}
@@ -412,9 +421,7 @@ function App() {
               style={{ width: "100%" }}
             >
               <Select.Option value="asc">Ascending (Old → New)</Select.Option>
-              <Select.Option value="desc">
-                Descending (New → Old)
-              </Select.Option>
+              <Select.Option value="desc">Descending (New → Old)</Select.Option>
             </Select>
           </div>
 
